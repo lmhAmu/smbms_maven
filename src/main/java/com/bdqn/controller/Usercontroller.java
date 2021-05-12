@@ -1,6 +1,7 @@
 package com.bdqn.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.bdqn.entity.Page;
 import com.bdqn.entity.Role;
 import com.bdqn.entity.User;
 import com.bdqn.service.RoleService;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -137,5 +139,26 @@ public class Usercontroller {
         user.setCreationDate(new Date());
         int i = userService.add(user);
         return i>0?"true":"false";
+    }
+
+
+    //分页
+    @RequestMapping("/userPage.do")
+    public String userPage(Integer pageNo1, Integer pageSize1,String queryname,Integer queryUserRole,Model model) throws SQLException {
+        model.addAttribute("queryname",queryname);
+        model.addAttribute("queryUserRole",queryUserRole);
+        List<Role> list1 = roleService.getList();
+        model.addAttribute("roleList",list1);
+        int pageNo = 1;
+        int pageSize = 5;
+        if (pageNo1 != null) {
+            pageNo = Integer.valueOf(pageNo1);
+        }
+        if (pageSize1 != null) {
+            pageSize = Integer.valueOf(pageSize1);
+        }
+        Page page = userService.getPageList(pageNo, pageSize, queryname, queryUserRole);
+        model.addAttribute("page",page);
+        return "jsp/userlist";
     }
 }

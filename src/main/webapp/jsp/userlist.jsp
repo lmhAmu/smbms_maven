@@ -7,7 +7,7 @@
                 <span>用户管理页面</span>
             </div>
             <div class="search">
-           		<form method="post" action="${pageContext.request.contextPath}/userlist.do">
+           		<form method="post" action="${pageContext.request.contextPath}/userPage.do">
 					<input name="method" value="query" class="input-text" type="hidden">
 					 <span>用户名：</span>
 					 <input name="queryname" class="input-text"	type="text" value="${queryname}">
@@ -39,7 +39,7 @@
                     <th width="10%">用户角色</th>
                     <th width="30%">操作</th>
                 </tr>
-                   <c:forEach var="user" items="${userList }" varStatus="status">
+                   <c:forEach var="user" items="${page.userList}" varStatus="status">
 					<tr>
 						<td>
 						<span>${user.userCode }</span>
@@ -70,13 +70,21 @@
 					</tr>
 				</c:forEach>
 			</table>
-			<input type="hidden" id="totalPageCount" value="${totalPageCount}"/>
-		  	<c:import url="rollpage.jsp">
-	          	<c:param name="totalCount" value="${totalCount}"/>
-	          	<c:param name="currentPageNo" value="${currentPageNo}"/>
-	          	<c:param name="totalPageCount" value="${totalPageCount}"/>
-          	</c:import>
-        </div>
+			<div class="page-bar">
+				<ul class="page-num-ul clearfix">
+					<li>共${page.totalCount }条记录&nbsp;&nbsp; ${page.currPageNo}/${page.totalPageCount }页</li>
+						<a href="userPage.do?pageNo1=1">首页</a>
+						<a href="userPage.do?pageNo1=${page.currPageNo-1}">上一页</a>
+						<a href="userPage.do?pageNo1=${page.currPageNo+1}">下一页</a>
+						<a href="userPage.do?pageNo1=${page.totalPageCount}">最后一页</a>
+					&nbsp;&nbsp;
+				</ul>
+				<span class="page-go-form"><label>跳转至</label>
+	     <input type="text" name="inputPage" id="inputPage" class="page-key" />页
+	     <button type="button" class="page-btn">GO</button>
+		</span>
+			</div>
+		</div>
     </section>
 
 <!--点击删除按钮后弹出的页面-->
@@ -94,3 +102,9 @@
 
 <%@include file="/jsp/common/foot.jsp" %>
 <script type="text/javascript" src="${pageContext.request.contextPath }/js/userlist.js"></script>
+<script>
+	$(".page-btn").click(function (){
+		var inputPage = $("#inputPage").val();
+		location.href="userPage.do?pageNo1="+inputPage;
+	})
+</script>
