@@ -33,7 +33,7 @@
              <ul class="list">
                  <li ><a href="${pageContext.request.contextPath }/billList.do">订单管理</a></li>
               <li><a href="${pageContext.request.contextPath }/provider.do">供应商管理</a></li>
-              <li><a href="${pageContext.request.contextPath }/userlist.do">用户管理</a></li>
+              <li><a href="${pageContext.request.contextPath }/userPage.do">用户管理</a></li>
               <li><a href="${pageContext.request.contextPath }/jsp/pwdmodify.jsp">密码修改</a></li>
               <li><a href="login.jsp">退出系统</a></li>
              </ul>

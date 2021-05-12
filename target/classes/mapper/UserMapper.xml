@@ -50,4 +50,41 @@
     <update id="update">
         UPDATE smbms_user SET userPassword=#{userPassword} where id=#{id}
     </update>
+
+    <select id="getTotalCount" resultType="int">
+        select count(*) from smbms_user
+    </select>
+
+    <resultMap id="getPageListMap" type="com.bdqn.entity.User">
+        <id property="id" column="id"/>
+        <result property="userRole" column="userRole"/>
+        <association property="role"  javaType="com.bdqn.entity.Role">
+            <id property="id" column="rid"/>
+            <result property="roleName" column="roleName"/>
+        </association>
+    </resultMap>
+    <select id="getPageList" resultMap="getPageListMap">
+        SELECT x.*,y.id as rid,y.roleName FROM  smbms_user X,smbms_role Y
+        <where>
+            x.userRole=y.id
+            <if test="userName !=null and userName !=''">
+                and x.userName like CONCAT('%',#{userName},'%')
+            </if>
+            <if test="userRole !=null and userRole !=0">
+                and x.userRole=#{userRole}
+            </if>
+        </where>
+        limit #{pageNo},#{pageSize}
+    </select>
+
+
+
+
+
+
+
+
+
+
+
 </mapper>
