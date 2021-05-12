@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bdqn.mapper.UserMapper">
+    <resultMap id="getListMap" type="com.bdqn.entity.User">
+        <id property="id" column="id"/>
+        <result property="userRole" column="userRole"/>
+        <association property="role"  javaType="com.bdqn.entity.Role">
+            <id property="id" column="rid"/>
+            <result property="roleName" column="roleName"/>
+        </association>
+    </resultMap>
+    <select id="getList" resultMap="getListMap">
+        SELECT x.*,y.id as rid,y.roleName FROM  smbms_user X,smbms_role Y
+        <where>
+            x.userRole=y.id
+        <if test="userName !=null and userName !=''">
+            and x.userName like CONCAT('%',#{userName},'%')
+        </if>
+        <if test="userRole !=null and userRole !=0">
+            and x.userRole=#{userRole}
+        </if>
+            <if test="id !=null and id !=''">
+                and x.id=#{id}
+            </if>
+        </where>
+    </select>
+    <insert id="add">
+        insert into smbms_user (userCode,userName,userPassword,gender,
+                                birthday,phone,address,userRole,
+                                createdBy,creationDate,modifyBy,modifyDate,idPicPath)
+        values (#{userCode},#{userName},#{userPassword},#{gender},
+                #{birthday},#{phone},#{address},#{userRole},
+                #{createdBy},#{creationDate},#{modifyBy},#{modifyDate},#{idPicPath})
+    </insert>
+    <select id="get" resultType="com.bdqn.entity.User">
+        SELECT * FROM smbms_user
+        <where>
+            <if test="userCode !=null">
+                and userCode=#{userCode}
+            </if>
+            <if test="userPassword !=null">
+               and userPassword=#{userPassword}
+            </if>
+        </where>
+    </select>
+
+    <update id="update">
+        UPDATE smbms_user SET userPassword=#{userPassword} where id=#{id}
+    </update>
+</mapper>

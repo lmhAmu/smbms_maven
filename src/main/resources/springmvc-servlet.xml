@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!-- 放行静态资源 -->
+    <mvc:default-servlet-handler/>
+    <!-- 内部资源视图解析器，前缀 + 逻辑名 + 后缀 -->
+    <bean id="internalResourceViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+    <!-- 声明注解开发方式 -->
+    <mvc:annotation-driven/>
+    <!--    3.扫描包：controller-->
+    <!-- 开启扫描-->
+    <context:component-scan base-package="com.bdqn.controller"/>
+
+    <!-- 配置拦截器，作用域controller级别-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/*"/>
+            <mvc:exclude-mapping path="/userlogin.do"/>
+            <bean class="com.bdqn.system.SystemInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+    <!--Mutipart解析器 -->
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="defaultEncoding" value="UTF-8"></property>
+    </bean>
+</beans>

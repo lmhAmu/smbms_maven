@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+    <import resource="springmvc-servlet.xml"/>
+    <!--扫描包中注解标注的类-->
+    <context:component-scan base-package="com.bdqn.service"/>
+    <!--引入properties文件-->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location">
+            <value>classpath:db.properties</value>
+        </property>
+    </bean>
+    <!--1 c3p0数据源的配置-->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${driver}"></property>
+        <property name="jdbcUrl" value="${url}"></property>
+        <property name="user" value="${user}"></property>
+        <property name="password" value="${password}"></property>
+    </bean>
+    <!--2 SqlSessionFactoryBean配置,提供SqlSession对象-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="configLocation" value="classpath:mybatis-cofig.xml"></property>
+        <property name="mapperLocations" value="classpath:mapper/*Mapper.xml"></property>
+    </bean>
+    <!--3 SqlSessionTemplate负责管理SqlSession-->
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactory"></constructor-arg>
+    </bean>
+
+    <!--4 配置Mapper实现-->
+    <!-- 使用 MapperScannerConfigurer根据指定包批量扫描Mapper接口并生成实例-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.bdqn.mapper"></property>
+    </bean>
+    <!--    定义事务管理-->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!--开启注释事务-->
+    <!--    <tx:annotation-driven transaction-manager="txManager"/>-->
+    <!-- 2. 配置事务属性 -->
+    <!--<tx:advice>元素声明事务通知-->
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+        <!-- 对不同的方法可以定义不同的事务规则 -->
+        <tx:attributes>
+            <!-- 默认情况下：运行时异常回滚，检测型异常不回滚 -->
+            <!-- rollback-for配置检测型异常回滚 -->
+            <tx:method name="*" rollback-for="java.lang.Exception"/>
+            <!--propagation配置事务传播行为-->
+            <!--read-only配置事务只读-->
+            <tx:method name="find*" read-only="true" propagation="SUPPORTS" timeout="3" rollback-for="java.lang.Exception"/>
+            <tx:method name="get*" read-only="true" propagation="SUPPORTS" timeout="3" rollback-for="java.lang.Exception"/>
+            <!--isolation配置事务的隔离级别-->
+            <!--rollback-for配置事务遇到异常必须回滚，no-rollback-for配置事务遇到异常必须不能回滚-->
+            <tx:method name="add*" propagation="REQUIRED" rollback-for="java.lang.Exception"/>
+            <tx:method name="delete*" propagation="REQUIRED" rollback-for="java.lang.Exception"/>
+            <tx:method name="update*" isolation="SERIALIZABLE" rollback-for="java.lang.Exception"/>
+        </tx:attributes>
+    </tx:advice>
+    <!-- 3. 配置事务切入点, 以及把事务切入点和事务属性关联起来 -->
+    <aop:config>
+        <aop:pointcut expression="execution(* com.bdqn.service.*.*(..))"
+                      id="txPointCut"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="txPointCut"/>
+    </aop:config>
+
+</beans>
